@@ -1,6 +1,9 @@
 import Button from '@mui/joy/Button'
 import { useRef, useState } from 'react'
 import { createCSV } from './createCSV'
+import List from '@mui/joy/List'
+import ListItem from '@mui/joy/ListItem'
+import ListItemDecorator from '@mui/joy/ListItemDecorator'
 
 const DownloadButton = ({ fetchData, loading, filename }) => {
   const ref = useRef(null)
@@ -23,15 +26,22 @@ const DownloadButton = ({ fetchData, loading, filename }) => {
       <Button variant='solid' loading={loading} onClick={handleDownloadClick}>
         Submit
       </Button>
-      <>
-        <p>{filename}</p>
-        <a
-          href={fileUrl}
-          download={filename}
-          style={{ display: 'none' }}
-          ref={ref}
-        />
-      </>
+      {filename && (
+        <List
+          aria-labelledby='filename'
+          sx={{ '--ListItemDecorator-size': '32px' }}
+        >
+          <ListItem>
+            <ListItemDecorator>📄</ListItemDecorator> {filename}
+          </ListItem>
+        </List>
+      )}
+      <a
+        href={fileUrl}
+        download={filename}
+        style={{ display: 'none' }}
+        ref={ref}
+      />
     </>
   )
 }
