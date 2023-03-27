@@ -8,7 +8,13 @@ export default function AutocompleteBox({
   defaultValue,
   handleSelectChange,
 }) {
-  const sortedOptions = [...options].sort()
+  const hasNonNumericValues = options.some((option) => isNaN(option))
+  let sortedOptions
+  if (hasNonNumericValues) {
+    sortedOptions = [...options].sort()
+  } else {
+    sortedOptions = [...options].sort((a, b) => a - b)
+  }
   const formattedLabel = formatLabel(fieldName)
   return (
     <Autocomplete
