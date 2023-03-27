@@ -92,7 +92,7 @@ export default function VirtualizedAutocomplete({
       multiple
       ListboxComponent={ListboxComponent}
       options={sortedOptions}
-      defaultValue={defaultValue}
+      value={defaultValue}
       onChange={(event, value) => handleSelectChange(event, value, fieldName)}
       renderInput={(params) => (
         <TextField
