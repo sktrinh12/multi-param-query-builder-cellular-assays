@@ -15,13 +15,13 @@ function App() {
     compoundIdOptions: [],
     compoundIdInputValue: ['FT002787'],
     croOptions: [],
-    croInputValue: ['Pharmaron'],
+    croInputValue: 'Pharmaron',
     cellIncubationHrOptions: [],
-    cellIncubationHrInputValue: ['1'],
+    cellIncubationHrInputValue: '1',
     cellAssayTypeOptions: [],
-    cellAssayTypeInputValue: ['HTRF'],
+    cellAssayTypeInputValue: 'HTRF',
     pctSerumOptions: [],
-    pctSerumInputValue: ['10'],
+    pctSerumInputValue: '10',
   }
 
   const reducer = (state, action) => {
@@ -124,7 +124,17 @@ function App() {
   }, [])
 
   return (
-    <Stack spacing={3} sx={{ width: 500 }}>
+    <Stack
+      spacing={4}
+      sx={{
+        backgroundColor: '#FAFAFA',
+        marginTop: '15px',
+        padding: '5px',
+        borderRadius: '10px',
+        marginLeft: '10px',
+        width: 500,
+      }}
+    >
       <VirtualizedAutocomplete
         options={state.compoundIdOptions}
         handleSelectChange={handleSelectChange}
