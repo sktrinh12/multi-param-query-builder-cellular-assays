@@ -20,7 +20,7 @@ export default function AutocompleteBox({
     <Autocomplete
       id={`${fieldName}-autocomplete`}
       options={sortedOptions}
-      defaultValue={defaultValue}
+      value={defaultValue}
       onChange={(event, value) => handleSelectChange(event, value, fieldName)}
       renderInput={(params) => (
         <TextField
@@ -28,7 +28,7 @@ export default function AutocompleteBox({
           variant='standard'
           label={formattedLabel}
           fullWidth
-          required
+          required={fieldName !== 'pctSerumInputValue'}
         />
       )}
     />
