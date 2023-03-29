@@ -74,8 +74,9 @@ function App() {
         state.cellIncubationHrInputValue,
         '&assay_type=',
         state.cellAssayTypeInputValue,
-        '&pct_serum=',
-        state.pctSerumInputValue,
+        state.pctSerumInputValue
+          ? `&pct_serum=${state.pctSerumInputValue}`
+          : '',
         '&type=gmean_cmpr&sql_type=get',
       ].join('')
       console.log(url)
