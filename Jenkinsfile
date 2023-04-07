@@ -8,7 +8,6 @@ pipeline {
     }
     environment{
         AWSID = credentials('AWSID')
-        GITHUB_PAT = credentials('github-kinnate-secret-text')
         DOCKER_PSW = credentials('DOCKER_PASSWORD')
         DOCKER_CONFIG = "${WORKSPACE}/docker.config"
         NAMESPACE = 'apps'
