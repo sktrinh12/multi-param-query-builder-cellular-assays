@@ -9,6 +9,7 @@ function App() {
   const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
 
+  console.log(BACKEND_URL)
   const initialState = {
     loading: false,
     filename: '',
