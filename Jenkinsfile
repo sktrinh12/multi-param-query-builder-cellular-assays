@@ -1,0 +1,130 @@
+apps = ['compound-comparison-tool']
+pipeline {
+    agent { 
+        kubernetes{
+            inheritFrom 'jenkins-slave'
+        }
+        
+    }
+    environment{
+        AWSID = credentials('AWSID')
+        GITHUB_PAT = credentials('github-kinnate-secret-text')
+        DOCKER_PSW = credentials('DOCKER_PASSWORD')
+        DOCKER_CONFIG = "${WORKSPACE}/docker.config"
+        NAMESPACE = 'apps'
+        APP_NAME = 'compound-comparison-tool'
+        AWS_PAGER = ''
+    }
+
+    
+    stages {
+
+        stage('docker login') {
+            steps {
+                    withCredentials([aws(credentialsId: 'awscredentials', region: 'us-west-2')]) {
+                    sh '''
+                        aws ecr get-login-password \
+												--region us-west-2 \
+												| docker login --username AWS \
+												--password-stdin $AWSID.dkr.ecr.us-west-2.amazonaws.com
+                       '''
+                }
+            }
+        }
+        
+        
+        stage('docker build $APP_NAME app') {
+            steps{
+                sh( label: 'Docker Build $APP_NAME app', script:
+                '''
+                #!/bin/bash
+                set -x
+                docker build \
+                --no-cache --network=host --build-arg VITE_BACKEND_URL=http://geomean.backend.kinnate \
+                --build-arg WORKSPACE=${WORKSPACE} --build-arg APP_NAME=${APP_NAME} --memory="2g" --memory-swap="4g" \
+                -t $AWSID.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME} \
+                -f Dockerfile.prod .
+                ''', returnStdout: true
+                )
+            }
+        }
+        
+        stage('docker push to ecr') {
+            steps {
+                sh(label: 'ECR docker push $APP_NAME', script:
+                '''
+                docker push $AWSID.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME}
+                ''', returnStdout: true
+                )
+            }
+        }
+        
+        
+        stage('deploy') {
+            agent {
+                kubernetes {
+                  yaml '''
+                    apiVersion: v1
+                    kind: Pod
+                    spec:
+                      containers:
+                      - name: helm
+                        image: alpine/helm:3.11.1
+                        command:
+                        - cat
+                        tty: true
+                    '''
+                }
+            }
+            steps{
+                container('helm') {
+                sh script: '''
+                #!/bin/bash
+                cd $WORKSPACE
+                curl -LO https://storage.googleapis.com/kubernetes-release/release/\$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+                chmod +x ./kubectl
+                ./kubectl get ns $NAMESPACE
+                if ./kubectl get namespace $NAMESPACE > /dev/null 2>&1; then
+                  echo "Namespace $NAMESPACE already exists"
+                  ./kubectl rollout restart deploy/${APP_NAME}-deploy -n $NAMESPACE
+                else
+                  echo "Namespace $NAMESPACE does not exist; deploy using helm"
+                  git clone https://github.com/sktrinh12/helm-basic-app-chart.git
+                  cd helm-basic-app-chart
+                  helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
+                  --set service.port=80 --set service.targetPort=80 --set nameOverride=${APP_NAME} \
+                  --set fullnameOverride=${APP_NAME} --set namespace=${NAMESPACE} \
+                  --set image.repository=${AWSID}.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME} \
+                  --set image.tag=latest --set containers.name=react \
+                  --set containers.ports.containerPort=80 --set app=${APP_NAME} \
+                  --set terminationGracePeriodSeconds=10 --set ingress.enabled=false --set service.type=ClusterIP
+                fi
+                '''
+                }
+            }
+        }
+
+        stage ('purge untagged images') {
+            steps {
+                withCredentials([aws(credentialsId: 'awscredentials', region: 'us-west-2')]) {
+                    loop_ecr_purge(apps)
+                }
+            }
+        }
+    }
+}
+
+def loop_ecr_purge(list) {
+    for (int i = 0; i < list.size(); i++) {
+        sh """aws ecr list-images \
+        --repository-name ${list[i]} \
+        --filter 'tagStatus=UNTAGGED' \
+        --query 'imageIds[].imageDigest' \
+        --output json \
+        | jq -r '.[]' \
+        | xargs -I{} aws ecr batch-delete-image \
+        --repository-name ${list[i]} \
+        --image-ids imageDigest={} 
+        """
+    }
+}
