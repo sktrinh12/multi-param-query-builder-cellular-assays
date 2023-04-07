@@ -43,7 +43,7 @@ pipeline {
                 --no-cache --network=host --build-arg VITE_BACKEND_URL=http://geomean.backend.kinnate \
                 --build-arg WORKSPACE=${WORKSPACE} --build-arg APP_NAME=${APP_NAME} --memory="2g" --memory-swap="4g" \
                 -t $AWSID.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME} \
-                -f Dockerfile.prod .
+                -f Dockerfile .
                 ''', returnStdout: true
                 )
             }
