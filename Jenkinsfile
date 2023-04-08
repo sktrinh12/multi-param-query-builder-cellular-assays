@@ -32,7 +32,7 @@ pipeline {
         }
         
         
-        stage('docker build $APP_NAME app') {
+        stage('docker build app') {
             steps{
                 sh( label: 'Docker Build $APP_NAME app', script:
                 '''
