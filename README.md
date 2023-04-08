@@ -27,4 +27,5 @@ against the connected Oracle database. The application was deployed using
 Jenkins CI/CD pipline. The `Jenkinsfile` can be inspected to understand what is
 performed. Basically, the docker image is built, then pushed to ECR, then
 deployed using `helm`. The app lives in the main `apps` namespace within `helm`
-as well as `kubectl`. Run `kubectl get all -n apps -l app=compound-comparison-tool` to get the kubernetes resources.
+as well as `kubectl`. Run `kubectl get all -n apps -l app=compound-comparison-tool` to get the kubernetes resources. Currently, the
+app can be visited by navigating to: `http://compound.comparison.kinnate`
