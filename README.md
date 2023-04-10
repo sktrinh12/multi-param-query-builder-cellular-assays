@@ -52,4 +52,4 @@ something like:
 ```
 
 Then ensure this A-record is added to Route 53 with the appropriate LoadBalancer
-ncer as the `Route traffic to` value.
+name as the `Route traffic to` value.
