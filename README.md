@@ -3,9 +3,6 @@
 #### This React app uses the following technologies:
 
 - ReactJS
-- Material UI
-- axios
-- AutocompleteBox
 - fastapi (backend)
 
 #### Summary
@@ -28,4 +25,31 @@ Jenkins CI/CD pipline. The `Jenkinsfile` can be inspected to understand what is
 performed. Basically, the docker image is built, then pushed to ECR, then
 deployed using `helm`. The app lives in the main `apps` namespace within `helm`
 as well as `kubectl`. Run `kubectl get all -n apps -l app=compound-comparison-tool` to get the kubernetes resources. Currently, the
-app can be visited by navigating to: `http://compound.comparison.kinnate`
+app can be visited by navigating to: `http://compound.comparison.kinnate`. The
+only parts that this frontend relies on is the backend's `compound_id`, `cros`,
+`cell_incubation_hr`, `cell_line`, `cell_assay_type`, `pct_serum`, `variant` and
+the main sql function: `gen_multi_cmpId_sql_template_cell()`
+
+#### Additional notes
+
+Once jenkins deploys the app and the pods and services are running the next step
+is to expose the application through a kubernetes nginx ingress. Just as in any other app, one must add a new ingress rule to the
+ingress yaml file. This can be obtained by running: `kubectl get ingress -o yaml` and applyling it locally, or editing the yaml on the fly (expert user)
+like so: `kubectl edit ingress -n apps`. The ingress rule block should resemble
+something like:
+
+```
+    - host: $APP_NAME.kinnate
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: $APP_NAME-svc
+                port:
+                  name: http
+```
+
+Then ensure this A-record is added to Route 53 with the appropriate LoadBalancer
+ncer as the `Route traffic to` value.
