@@ -18,8 +18,7 @@ geomean values.
 
 #### Technical
 
-The app repo lives in: `https://github.com/Kinnate/compound-comparison-tool.git`
-and uses the geomean fastapi python backend to generate the SQL and run it
+This is only the frontend UI. The geomean fastapi python backend `https://github.com/Kinnate/geomean-ic50-flagger.git` is used to generate the SQL and run it
 against the connected Oracle database. The application was deployed using
 Jenkins CI/CD pipline. The `Jenkinsfile` can be inspected to understand what is
 performed. Basically, the docker image is built, then pushed to ECR, then
@@ -28,7 +27,9 @@ as well as `kubectl`. Run `kubectl get all -n apps -l app=compound-comparison-to
 app can be visited by navigating to: `http://compound.comparison.kinnate`. The
 only parts that this frontend relies on is the backend's `compound_id`, `cros`,
 `cell_incubation_hr`, `cell_line`, `cell_assay_type`, `pct_serum`, `variant` and
-the main sql function: `gen_multi_cmpId_sql_template_cell()`
+the main sql function: `gen_multi_cmpId_sql_template_cell()`. There are several
+scheduled tasks that run in the background every couple hours to refresh new
+parameters such as: FT numbers or cell lines, etc.
 
 #### Additional notes
 
