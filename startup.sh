@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 export WORKING_DIR=$HOME/Documents/security_files
-# Split the current tmux window into two panes
-tmux split-window -v -c './frontend' 'bash -i -c "export REACT_APP_VERSION=0.1 && export REACT_APP_ENVIRONMENT=DEVEL && npm run start"'
+# Split the current tmux window vertically while retaining the current working directory
+tmux split-window -v -c '#{pane_current_path}'
+tmux send-keys 'export VITE_VERSION=0.1 && export VITE_ENVIRONMENT=DEVEL && npm run dev -- --port 3000' C-m
 
 # Create a new window for the backend, change directory, activate virtual environment, and start backend server
 tmux new-window -n 'backend' -c $HOME/Documents/gitrepos/geomean-flagger/backend
