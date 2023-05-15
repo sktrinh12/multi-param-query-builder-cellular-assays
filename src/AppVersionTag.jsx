@@ -5,8 +5,8 @@ import Typography from '@mui/material/Typography'
 
 const AppVersion = () => {
   const theme = useTheme()
-  const version = process.env.REACT_APP_VERSION
-  const env = process.env.REACT_APP_ENVIRONMENT
+  const version = import.meta.env.VITE_VERSION
+  const env = import.meta.env.VITE_ENVIRONMENT
 
   return (
     <Box
