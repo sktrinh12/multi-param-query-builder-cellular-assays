@@ -83,9 +83,13 @@ pipeline {
             steps{
                 container('helm') {
 								  script {
+								  	sh '''
+								  	mkdir $WORKSPACE/tmp-helm
+										cd $WORKSPACE/tmp-helm
+								  	'''
 							  	  git url: 'https://github.com/Kinnate/k8s-app-helm.git', credentialsId: 'git-knte-pat', branch: 'main'
 							  	  sh '''
-							  	  mv . $WORKSPACE
+										ls -lta
 							  	  '''
                     sh '''
                     #!/bin/bash
@@ -97,6 +101,7 @@ pipeline {
                       ./kubectl rollout restart deploy/${APP_NAME}-deploy -n $NAMESPACE
                     else
                       echo "pods $APP_NAME do not exist; deploy using helm"
+											cd tmp-helm
                       helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
                       --set service.port=80 --set nameOverride=${APP_NAME} \
                       --set fullnameOverride=${APP_NAME} --set namespace=${NAMESPACE} \
