@@ -82,7 +82,7 @@ pipeline {
             }
             steps{
                 container('helm') {
-								  scripts {
+								  script {
 							  	  git url: 'https://github.com/Kinnate/k8s-app-helm.git', credentialsId: 'git-knte-pat', branch: 'main'
 							  	  sh '''
 							  	  mv . $WORKSPACE
