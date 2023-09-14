@@ -82,33 +82,33 @@ pipeline {
             }
             steps{
                 container('helm') {
-								steps {
-								git url: 'https://github.com/Kinnate/k8s-app-helm.git', credentialsId: 'git-knte-pat', branch: 'main'
-								sh script: '''
-								mv . $WORKSPACE
-								'''
-                sh script: '''
-                #!/bin/bash
-                cd $WORKSPACE
-                curl -LO https://storage.googleapis.com/kubernetes-release/release/\$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-                chmod +x ./kubectl
-                if ./kubectl get pod -n $NAMESPACE -l app=$APP_NAME | grep -q $APP_NAME; then
-                  echo "$APP_NAME pods already exists"
-                  ./kubectl rollout restart deploy/${APP_NAME}-deploy -n $NAMESPACE
-                else
-                  echo "pods $APP_NAME do not exist; deploy using helm"
-                  helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
-                  --set service.port=80 --set nameOverride=${APP_NAME} \
-                  --set fullnameOverride=${APP_NAME} --set namespace=${NAMESPACE} \
-                  --set image.repository=${AWSID}.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME} \
-                  --set image.tag=latest --set containers.name=react \
-                  --set containers.ports.containerPort=80 --set app=${APP_NAME} \
-                  --set terminationGracePeriodSeconds=10 --set ingress.enabled=false --set service.type=ClusterIP \
-									--set resources.limits.cpu=100m,resources.limits.memory=128Mi,resources.requests.cpu=100m,resources.requests.memory=128Mi \
-                  --namespace $NAMESPACE
-                fi
-                '''
-								}
+								  scripts {
+							  	  git url: 'https://github.com/Kinnate/k8s-app-helm.git', credentialsId: 'git-knte-pat', branch: 'main'
+							  	  sh '''
+							  	  mv . $WORKSPACE
+							  	  '''
+                    sh '''
+                    #!/bin/bash
+                    cd $WORKSPACE
+                    curl -LO https://storage.googleapis.com/kubernetes-release/release/\$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+                    chmod +x ./kubectl
+                    if ./kubectl get pod -n $NAMESPACE -l app=$APP_NAME | grep -q $APP_NAME; then
+                      echo "$APP_NAME pods already exists"
+                      ./kubectl rollout restart deploy/${APP_NAME}-deploy -n $NAMESPACE
+                    else
+                      echo "pods $APP_NAME do not exist; deploy using helm"
+                      helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
+                      --set service.port=80 --set nameOverride=${APP_NAME} \
+                      --set fullnameOverride=${APP_NAME} --set namespace=${NAMESPACE} \
+                      --set image.repository=${AWSID}.dkr.ecr.us-west-2.amazonaws.com/${APP_NAME} \
+                      --set image.tag=latest --set containers.name=react \
+                      --set containers.ports.containerPort=80 --set app=${APP_NAME} \
+                      --set terminationGracePeriodSeconds=10 --set ingress.enabled=false --set service.type=ClusterIP \
+							  	  	--set resources.limits.cpu=100m,resources.limits.memory=128Mi,resources.requests.cpu=100m,resources.requests.memory=128Mi \
+                      --namespace $NAMESPACE
+                    fi
+                    '''
+									}
                 }
             }
         }
