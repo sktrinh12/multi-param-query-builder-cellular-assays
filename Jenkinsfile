@@ -96,7 +96,7 @@ pipeline {
                       echo "pods $APP_NAME do not exist; deploy using helm"
 									  	ls -lta
 								    	mkdir $WORKSPACE/tmp-helm
-								      find $WORKSPACE -maxdepth 1 ! -name "tmp-helm" -exec mv {} $WORKSPACE/tmp-helm/ \;
+								      find $WORKSPACE -maxdepth 1 ! -name "tmp-helm" -exec mv {} $WORKSPACE/tmp-helm/ \\;
 											cd tmp-helm
                       helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
                       --set service.port=80 --set nameOverride=${APP_NAME} \
