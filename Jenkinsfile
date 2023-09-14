@@ -96,7 +96,7 @@ pipeline {
                       echo "pods $APP_NAME do not exist; deploy using helm"
 									  	ls -lta
 								    	mkdir $WORKSPACE/tmp-helm
-								      find $WORKSPACE -maxdepth 1 ! -name "tmp-helm" -exec mv {} $WORKSPACE/tmp-helm/ \\;
+								      find $WORKSPACE -maxdepth 1 ! -name "tmp-helm" ! -name 'kubectl' -exec mv {} $WORKSPACE/tmp-helm/ \\;
 											cd tmp-helm
                       helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
                       --set service.port=80 --set nameOverride=${APP_NAME} \
@@ -105,7 +105,7 @@ pipeline {
                       --set image.tag=latest --set containers.name=react \
                       --set containers.ports.containerPort=80 --set app=${APP_NAME} \
                       --set terminationGracePeriodSeconds=10 --set ingress.enabled=false --set service.type=ClusterIP \
-							  	  	--set resources.limits.cpu=100m,resources.limits.memory=128Mi,resources.requests.cpu=100m,resources.requests.memory=128Mi \
+							  	  	--set resources.limits.cpu=75m,resources.limits.memory=100,resources.requests.cpu=100m,resources.requests.memory=100Mi \
                       --namespace $NAMESPACE
                     fi
                     '''
