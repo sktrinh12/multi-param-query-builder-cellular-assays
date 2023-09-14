@@ -14,7 +14,7 @@ pipeline {
         DOCKER_PSW = credentials('DOCKER_PASSWORD')
         DOCKER_CONFIG = "${WORKSPACE}/docker.config"
         NAMESPACE = 'apps'
-        APP_NAME = 'compound-comparison-tool'
+        APP_NAME = 'compound-comparison-tool-dev'
         AWS_PAGER = ''
     }
 
@@ -82,6 +82,11 @@ pipeline {
             }
             steps{
                 container('helm') {
+								steps {
+								git url: 'https://github.com/Kinnate/k8s-app-helm.git', credentialsId: 'git-knte-pat', branch: 'main'
+								sh script: '''
+								mv . $WORKSPACE
+								'''
                 sh script: '''
                 #!/bin/bash
                 cd $WORKSPACE
@@ -92,8 +97,6 @@ pipeline {
                   ./kubectl rollout restart deploy/${APP_NAME}-deploy -n $NAMESPACE
                 else
                   echo "pods $APP_NAME do not exist; deploy using helm"
-                  git clone https://github.com/sktrinh12/helm-basic-app-chart.git
-                  cd helm-basic-app-chart
                   helm install k8sapp-${APP_NAME} . --set service.namespace=$NAMESPACE \
                   --set service.port=80 --set nameOverride=${APP_NAME} \
                   --set fullnameOverride=${APP_NAME} --set namespace=${NAMESPACE} \
@@ -105,6 +108,7 @@ pipeline {
                   --namespace $NAMESPACE
                 fi
                 '''
+								}
                 }
             }
         }
